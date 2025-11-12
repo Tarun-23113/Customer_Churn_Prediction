@@ -8,15 +8,31 @@ from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, reca
 def app():
     st.header("📊 Model Evaluation & Comparison")
 
-    x_train = pd.read_csv("data/x_train.csv")
-    x_test = pd.read_csv("data/x_test.csv")
-    y_train = pd.read_csv("data/y_train.csv").values.ravel()
-    y_test = pd.read_csv("data/y_test.csv").values.ravel()
+    try:
+        x_train = pd.read_csv("data/x_train.csv", index_col=0)
+        x_test = pd.read_csv("data/x_test.csv", index_col=0)
+        y_train = pd.read_csv("data/y_train.csv", index_col=0).values.ravel()
+        y_test = pd.read_csv("data/y_test.csv", index_col=0).values.ravel()
 
-    rf_model = joblib.load("models/random_forest_grid.pkl")
-    gb_model = joblib.load("models/gradient_boosting_grid.pkl")
-    xgb_model = joblib.load("models/xgboost_grid.pkl")
-    lr_model = joblib.load("models/logistic_regression_grid.pkl")
+        rf_model = joblib.load("models/random_forest_grid.pkl")
+        gb_model = joblib.load("models/gradient_boosting_grid.pkl")
+        xgb_model = joblib.load("models/xgboost_grid.pkl")
+        lr_model = joblib.load("models/logistic_regression_grid.pkl")
+    except Exception as e:
+        st.error(f"⚠️ Error loading models: {str(e)}")
+        st.warning("""
+        **Model Loading Failed - Version Compatibility Issue**
+        
+        This error typically occurs when models were trained with a different version of numpy/scikit-learn.
+        
+        **Solutions:**
+        1. Retrain your models with the current environment
+        2. Downgrade numpy to match the version used during training
+        3. Check your requirements.txt for version compatibility
+        
+        Run: `pip list | findstr "numpy scikit-learn"` to check current versions
+        """)
+        return
 
     models = {
         "Random Forest": rf_model,

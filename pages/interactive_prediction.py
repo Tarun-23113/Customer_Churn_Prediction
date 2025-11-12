@@ -7,7 +7,7 @@ def app():
     st.title("📊 Real-Time Customer Churn Prediction")
 
     try:
-        sample = pd.read_csv("data/x_test.csv").head(1)
+        sample = pd.read_csv("data/x_test.csv", index_col=0).head(1)
     except Exception:
         st.error("⚠️ Missing file: data/x_test.csv")
         return
@@ -36,7 +36,12 @@ def app():
             min_val = float(stats.loc["min", col]) if "min" in stats.index else float(sample[col].min())
             max_val = float(stats.loc["max", col]) if "max" in stats.index else float(sample[col].max())
             mean_val = float(stats.loc["mean", col]) if "mean" in stats.index else float(sample[col].iloc[0])
-            inputs[col] = st.slider(col, min_val, max_val, mean_val)
+            
+            # Handle case where min == max (no variance in column)
+            if min_val == max_val:
+                inputs[col] = st.number_input(col, value=mean_val)
+            else:
+                inputs[col] = st.slider(col, min_val, max_val, mean_val)
         else:
             inputs[col] = st.text_input(col, str(sample[col].iloc[0]))
 

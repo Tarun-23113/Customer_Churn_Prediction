@@ -1,6 +1,8 @@
 import pandas as pd
 import joblib
 import os
+import streamlit as st
+from PIL import Image
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, confusion_matrix
 
@@ -9,6 +11,13 @@ def load_csv(path):
 
 def load_model(path):
     return joblib.load(path)
+
+def load_image(path):
+    try:
+        return Image.open(path)
+    except Exception as e:
+        st.error(f"Error loading image: {e}")
+        return None
 
 def metrics_report(y_true, y_pred, y_prob):
     return {

@@ -14,30 +14,28 @@ from pages import (
     conclusion
 )
 
-# ---------------------------------------------------------
-# 🔧 Streamlit Page Config
-# ---------------------------------------------------------
 st.set_page_config(
     page_title="E-Commerce Churn Prediction",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ---------------------------------------------------------
-# 🎨 Custom CSS Styling
-# ---------------------------------------------------------
 st.markdown(
     """
     <style>
-    .stApp {background-color: #0b1220; color: #e6eef6;}
-    .stSidebar {background-color:#07111a;}
-    h1, h2, h3, h4, h5, h6 {color: #e6eef6;}
+    .stApp {background-color: #ffffff; color: #1f2937;}
+    .stSidebar {background-color: #f8f9fa;}
+    h1, h2, h3, h4, h5, h6 {color: #1f2937;}
     .stButton>button {
-        background-color:#0f1720;
-        color:#e6eef6;
-        border:1px solid #233044;
+        background-color: #ffffff;
+        color: #1f2937;
+        border: 1px solid #d1d5db;
         border-radius: 8px;
-        padding: 0.4rem 1rem;
+        padding: 0.45rem 1rem;
+    }
+    .stButton>button:hover {
+        background-color: #f3f4f6;
+        border-color: #9ca3af;
     }
     .block-container {padding-top: 1rem; padding-bottom: 1rem;}
     </style>
@@ -45,46 +43,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---------------------------------------------------------
-# 🧠 Caching Heavy Objects
-# ---------------------------------------------------------
-@st.cache_data(show_spinner=False)
-def load_cached_data():
-    import pandas as pd
-    try:
-        return pd.read_csv("data/final_cleaned_df.csv")
-    except FileNotFoundError:
-        return None
-
-@st.cache_resource(show_spinner=False)
-def load_models():
-    import joblib
-    models = {}
-    try:
-        models["Logistic Regression"] = joblib.load("models/logistic_regression_grid.pkl")
-        models["Random Forest"] = joblib.load("models/random_forest_grid.pkl")
-        models["Gradient Boosting"] = joblib.load("models/gradient_boosting_grid.pkl")
-        models["XGBoost"] = joblib.load("models/xgboost_grid.pkl")
-    except Exception as e:
-        st.warning(f"⚠️ Model loading issue: {e}")
-    return models
-
-# Preload everything when app starts
-df_cached = load_cached_data()
-models_cached = load_models()
-
-# ---------------------------------------------------------
-# 🧭 Sidebar Navigation
-# ---------------------------------------------------------
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["🏠 Home", "🤖 Interactive Prediction"])
 
-# ---------------------------------------------------------
-# 🏠 HOME PAGE (Load All Pages Sequentially)
-# ---------------------------------------------------------
 if page == "🏠 Home":
+    st.markdown('<a id="top"></a>', unsafe_allow_html=True)
     st.title("E-Commerce Customer Churn Prediction Journey 🚀")
-    st.caption("A complete walkthrough from data collection → EDA → modeling → deployment")
+    st.caption("A complete end-to-end walkthrough: from data collection → EDA → modeling → deployment")
 
     with st.spinner("Loading complete project..."):
         st.markdown("#### 1️⃣ Project Overview")
@@ -92,7 +57,7 @@ if page == "🏠 Home":
 
         st.markdown("---")
         st.markdown("#### 2️⃣ Data Overview")
-        data_overview.app(df_cached)
+        data_overview.app()
 
         st.markdown("---")
         st.markdown("#### 3️⃣ Data Quality (Before Cleaning)")
@@ -100,7 +65,7 @@ if page == "🏠 Home":
 
         st.markdown("---")
         st.markdown("#### 4️⃣ Data Cleaning Steps")
-        cleaning_steps.app()\
+        cleaning_steps.app()
 
         st.markdown("---")
         st.markdown("#### 5️⃣ Churn Definition")
@@ -123,17 +88,26 @@ if page == "🏠 Home":
         model_evaluation.app()
 
         st.markdown("---")
-        st.markdown("#### 🔟 Model Interpretation")
-        model_interpretability.app()
+        st.markdown("#### 🔟 Interactive Churn Prediction Tool 💡")
+        interactive_prediction.app()
 
         st.markdown("---")
-        st.markdown("#### Conclusion")
+        st.markdown("#### 11️⃣ Conclusion & Business Takeaways")
         conclusion.app()
 
-# ---------------------------------------------------------
-# 🤖 INTERACTIVE PREDICTION PAGE
-# ---------------------------------------------------------
+    st.markdown(
+        """
+        <div style="position:fixed; bottom:25px; right:30px; z-index:100;">
+            <a href="#top">
+                <button style="background-color:#3b82f6; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    ↑ Back to Top
+                </button>
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 elif page == "🤖 Interactive Prediction":
     st.title("Interactive Churn Prediction Tool 💡")
-    interactive_prediction.app(models_cached)
-
+    interactive_prediction.app()
