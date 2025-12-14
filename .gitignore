@@ -1,4 +1,4 @@
-# Virtual environments (DON'T PUSH)
+# Virtual environments
 venv/
 env/
 ENV/
@@ -11,13 +11,13 @@ __pycache__/
 *.pyc
 *.pyo
 
-# IDE files (DON'T PUSH)
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files (DON'T PUSH)
+# OS files
 .DS_Store
 .DS_Store?
 ._*
@@ -26,23 +26,19 @@ __pycache__/
 ehthumbs.db
 Thumbs.db
 
-# Docker files (DON'T PUSH - not needed for Railway)
+# Docker files (not needed for Railway)
 Dockerfile*
 docker-compose.yml
 .dockerignore
 
-# Data files (DON'T PUSH - too large)
-data/
-*.csv
-
-# Jupyter notebooks (DON'T PUSH)
+# Large data files (keep x_test.csv for backend)
+data/x_train.csv
+data/y_train.csv
+data/y_test.csv
 *.ipynb
 
-# Test files (DON'T PUSH)
+# Test files
 backend/test_models.py
 
 # Logs
 *.log
-
-# Git
-.git/

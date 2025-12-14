@@ -6,8 +6,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List, Optional
 
-from .config import config
-from .api_client import api_client
+# Import modular components
+from config import config
+import api_client
 
 st.set_page_config(
     page_title=config.PAGE_TITLE,
@@ -32,68 +33,6 @@ section[data-testid="stSidebarNav"] {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
-@st.cache_data(ttl=300, show_spinner=False)  # 5 min cache, no spinner
-def check_api_health() -> bool:
-    """Optimized API health check"""
-    try:
-        response = requests.get(f"{API_BASE_URL}/health", timeout=3)
-        return response.status_code == 200
-    except:
-        return False
-
-@st.cache_data(ttl=300, show_spinner=False)  # 5 min cache
-def get_available_models() -> List[str]:
-    """Get available models from API"""
-    try:
-        response = requests.get(f"{API_BASE_URL}/models", timeout=3)
-        if response.status_code == 200:
-            return response.json()["available_models"]
-        return []
-    except:
-        return []
-
-@st.cache_data(ttl=600, show_spinner=False)  # 10 min cache for feature ranges
-def get_feature_ranges() -> Optional[Dict]:
-    """Get feature ranges for sliders"""
-    try:
-        response = requests.get(f"{API_BASE_URL}/feature-ranges", timeout=3)
-        if response.status_code == 200:
-            return response.json()
-        return None
-    except:
-        return None
-
-def make_prediction(model_name: str, features: Dict) -> Optional[Dict]:
-    """Optimized prediction with timeout"""
-    try:
-        response = requests.post(
-            f"{API_BASE_URL}/predict/{model_name}",
-            json=features,
-            timeout=10  # 10 second timeout
-        )
-        if response.status_code == 200:
-            return response.json()
-        else:
-            st.error("Prediction failed. Please try again.")
-            return None
-    except requests.exceptions.Timeout:
-        st.error("Request timed out. Please try again.")
-        return None
-    except Exception:
-        st.error("Connection error. Please check if the API is running.")
-        return None
-
-@st.cache_data(ttl=300)  # Cache for 5 minutes
-def get_feature_importance(model_name):
-    """Get feature importance from API"""
-    try:
-        response = requests.get(f"{API_BASE_URL}/feature-importance/{model_name}")
-        if response.status_code == 200:
-            return response.json()
-        return None
-    except:
-        return None
-
 def prediction_page():
     """Prediction page UI"""
     st.title("📊 Customer Churn Prediction")
@@ -104,12 +43,12 @@ def prediction_page():
         st.session_state.api_healthy = False
         st.session_state.models = []
     
-    # Check API health only once per session or when explicitly needed
+    # Check API health only once per session
     if not st.session_state.api_checked:
         with st.spinner("Connecting to API..."):
-            st.session_state.api_healthy = check_api_health()
+            st.session_state.api_healthy = api_client.check_health()
             if st.session_state.api_healthy:
-                st.session_state.models = get_available_models()
+                st.session_state.models = api_client.get_models()
             st.session_state.api_checked = True
     
     if not st.session_state.api_healthy:
@@ -169,7 +108,7 @@ def prediction_page():
         }
         
         with st.spinner("Making prediction..."):
-            result = make_prediction(selected_model, features)
+            result = api_client.predict(selected_model, features)
         
         if result:
             st.markdown("---")
@@ -222,11 +161,11 @@ def insights_page():
     st.title("📈 Model Insights & Analytics")
     
     # Check API health
-    if not check_api_health():
+    if not api_client.check_health():
         st.error("🚨 Backend API is not running. Please start the FastAPI server.")
         return
     
-    models = get_available_models()
+    models = api_client.get_models()
     if not models:
         st.error("No models available from API")
         return
@@ -235,7 +174,7 @@ def insights_page():
     selected_model = st.selectbox("Select Model for Analysis", models)
     
     # Get feature importance
-    importance_data = get_feature_importance(selected_model)
+    importance_data = api_client.get_feature_importance(selected_model)
     
     if importance_data:
         st.subheader(f"🎯 Feature Importance - {selected_model}")
