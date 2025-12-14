@@ -1,0 +1,48 @@
+# Virtual environments (DON'T PUSH)
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# IDE files (DON'T PUSH)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files (DON'T PUSH)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker files (DON'T PUSH - not needed for Railway)
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# Data files (DON'T PUSH - too large)
+data/
+*.csv
+
+# Jupyter notebooks (DON'T PUSH)
+*.ipynb
+
+# Test files (DON'T PUSH)
+backend/test_models.py
+
+# Logs
+*.log
+
+# Git
+.git/
