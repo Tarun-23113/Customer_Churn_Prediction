@@ -1,171 +1,230 @@
-# 🚀 Customer Churn Prediction - Full Stack ML Application
+# 🚀 Customer Churn Prediction – End-to-End ML System
 
-A production-ready machine learning application for predicting customer churn with a FastAPI backend and Streamlit frontend.
-
-## 🏗️ Architecture
-
-```
-Frontend (Streamlit) ←→ REST API ←→ Backend (FastAPI)
-     │                                    │
-   User Interface              ML Models + Analytics
-```
-
-## ✨ Features
-
-### 🔮 Predictions Page
-- Real-time churn predictions
-- Multiple ML models (Random Forest, XGBoost, Gradient Boosting, Logistic Regression)
-- Interactive feature inputs with proper validation
-- Confidence scoring and probability visualization
-- Customizable prediction threshold
-
-### 📈 Insights Page
-- Feature importance analysis
-- Model performance comparison
-- Interactive charts and visualizations
-- Model interpretability tools
-
-## 🚀 Quick Start
-
-### Backend (FastAPI)
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-API will be available at: http://localhost:8000
-API Documentation: http://localhost:8000/docs
-
-### Frontend (Streamlit)
-```bash
-cd frontend
-pip install -r requirements.txt
-streamlit run app.py
-```
-App will be available at: http://localhost:8501
-
-## 📁 Project Structure
-
-```
-churn-prediction/
-├── backend/
-│   ├── main.py              # FastAPI application
-│   ├── models/              # Trained ML models (.pkl files)
-│   ├── x_test.csv          # Sample data for feature ranges
-│   └── requirements.txt
-├── frontend/
-│   ├── app.py              # Streamlit application
-│   └── requirements.txt
-├── data/                   # Training data (optional)
-└── README.md
-```
-
-## 🔧 API Endpoints
-
-- `GET /` - API status and info
-- `GET /health` - Health check
-- `GET /models` - Available models
-- `GET /feature-stats` - Feature statistics
-- `POST /predict/{model_name}` - Make predictions
-- `GET /feature-importance/{model_name}` - Get feature importance
-
-## 🚀 Optimized Deployment
-
-### Performance Optimizations:
-- **Memory efficient**: Models loaded once, cached predictions
-- **Fast startup**: Optimized Docker images with multi-stage builds
-- **Compressed responses**: GZip middleware enabled
-- **Caching**: LRU cache for feature importance, API responses
-- **Input validation**: Pydantic models with constraints
-- **Resource limits**: Docker memory limits for cost efficiency
-
-### Deployment Options:
-
-**Option 1: Railway (Recommended)**
-1. Fork this repository
-2. Connect to Railway
-3. Deploy backend: `railway up` (uses railway.json)
-4. Deploy frontend: Set `API_BASE_URL` environment variable
-
-**Option 2: Docker Compose (Local/VPS)**
-```bash
-docker-compose up --build
-```
-
-**Option 3: Separate Services**
-- Backend: Railway/Render/Fly.io
-- Frontend: Streamlit Cloud
-
-### Environment Variables:
-- `API_BASE_URL`: Backend URL (for frontend)
-- `ENVIRONMENT`: Set to "production" to disable docs
-- `PORT`: Port for Railway deployment (auto-set)
-
-## 🛠️ Technologies Used
-
-**Backend:**
-- FastAPI - Modern, fast web framework
-- Pydantic - Data validation
-- Scikit-learn - ML models
-- Pandas - Data manipulation
-- Uvicorn - ASGI server
-
-**Frontend:**
-- Streamlit - Web app framework
-- Plotly - Interactive visualizations
-- Requests - HTTP client
-
-## 📊 Models Included
-
-1. **Random Forest** - Ensemble method, good for feature importance
-2. **XGBoost** - Gradient boosting, high performance
-3. **Gradient Boosting** - Sequential ensemble method
-4. **Logistic Regression** - Linear model, interpretable
-
-## 🎯 Features for Prediction
-
-- Price
-- Freight Value
-- Payment Installments
-- Delivery Difference (days)
-- Reviewed Days
-- Customer State (encoded)
-- Product Category (encoded)
-- Payment Type (encoded)
-
-## 🔮 Future Enhancements
-
-- [ ] Model retraining pipeline
-- [ ] A/B testing framework
-- [ ] Real-time monitoring
-- [ ] User authentication
-- [ ] Model versioning
-- [ ] Batch predictions
-- [ ] Data drift detection
-
-## 📈 Performance
-
-- **API Response Time**: < 100ms
-- **Model Loading**: On startup (faster predictions)
-- **Concurrent Users**: Supports multiple simultaneous requests
-- **Scalability**: Horizontal scaling ready
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🙋‍♂️ Support
-
-For questions or issues, please open a GitHub issue or contact [your-email].
+An end-to-end machine learning application that predicts customer churn for a Brazilian e-commerce platform using transactional data. The project covers the complete ML lifecycle: data preprocessing, feature engineering, model training and evaluation under class imbalance, and deployment using a FastAPI backend with a Streamlit frontend for real-time inference and insights.
 
 ---
 
-**Built with ❤️ for the ML community**
+## 📌 Problem Statement
+
+Customer churn is a critical business problem for e-commerce platforms, as retaining existing customers is often more cost-effective than acquiring new ones.  
+This project aims to identify customers at risk of churning based on their purchasing behavior, delivery experience, payment patterns, and review dynamics.
+
+Since the dataset does not provide explicit churn labels, churn is defined using an inactivity-based proxy.
+
+---
+
+## 📊 Dataset Overview
+
+- **Source**: Olist Brazilian E-commerce Dataset - https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce  
+- **Time Period**: 2016–2018  
+- **Nature**: Transactional, normalized relational data  
+
+### Tables Used
+- Customers  
+- Orders  
+- Order Items  
+- Payments  
+- Reviews  
+- Products  
+- Sellers  
+
+The raw data is order-level, while churn is a customer-level concept, requiring careful aggregation and time-aware feature engineering.
+
+---
+
+## 🧠 Churn Definition (Proxy)
+
+A customer is labeled as **churned (1)** if:
+
+`Days since last purchase > 90 days`
+
+Otherwise, the customer is labeled as **non-churned (0)**.
+
+⚠️ **Note**: This is a heuristic proxy due to the absence of ground-truth churn labels. In production, this threshold should be validated using domain knowledge or sensitivity analysis.
+
+---
+
+## 🛠️ Data Processing & Feature Engineering
+
+### Data Cleaning
+- Retained only delivered orders to ensure availability of delivery and review signals  
+- Handled missing values strategically:
+  - Missing reviews preserved using sentinel values  
+  - Product metadata filled using median or “Unknown” where appropriate  
+- Removed redundant or post-engineering columns  
+
+### Feature Engineering
+Key behavioral and operational features:
+- Delivery delay vs estimated delivery  
+- Review timing after delivery  
+- Freight value  
+- Payment installments  
+- Product category frequency  
+- Customer geography  
+
+### Categorical Encoding
+- **Target Encoding**: `customer_state`  
+  *(applied after train–test split to avoid leakage)*  
+- **Frequency Encoding**: `product_category_name`  
+- **Label Encoding**: `payment_type`  
+  *(used only for tree-based models)*  
+
+---
+
+## 📈 Exploratory Data Analysis (EDA)
+
+EDA was used to generate hypotheses, not final conclusions.
+
+### Key Insights
+- Delivery experience had a stronger impact on churn than price  
+- Customers who reviewed sooner were less likely to churn  
+- High freight costs correlated with increased churn risk  
+- Non-linear relationships suggested tree-based models  
+
+All insights were later validated using model performance.
+
+---
+
+## 🤖 Modeling Strategy
+
+### Objective
+Maximize the detection of churned customers in an imbalanced classification setting, prioritizing **Recall** and **ROC-AUC** over raw accuracy.
+
+### Models Trained
+- Logistic Regression (baseline & interpretability)  
+- Random Forest  
+- Gradient Boosting  
+- XGBoost (primary model)  
+
+### Imbalance Handling
+- `class_weight='balanced'` for classical models  
+- `scale_pos_weight` for XGBoost  
+
+### Evaluation Metrics
+- ROC-AUC  
+- Recall  
+- Precision  
+- Confusion Matrix  
+
+Accuracy was not prioritized due to class imbalance.
+
+---
+
+## 🏆 Model Selection
+
+- Tree-based models outperformed linear models due to non-linear feature interactions  
+- XGBoost achieved the best trade-off between recall and ROC-AUC  
+- Train vs test metrics were compared to detect overfitting  
+
+All trained models were serialized using `joblib`.
+
+---
+
+## 🧩 System Architecture
+```
+                ┌────────────────────────┐
+                │       ML Training      │
+                │     (Google Colab)     │
+                │------------------------│
+                │ • Data Cleaning        │
+                │ • Data Pre-processing  │
+                │ • EDA                  │
+                │ • Feature Engineering  │
+                │ • Model Training       │
+                │ • Model Evaluation     │
+                │ • Hyperparameter Tuning│
+                └───────────┬────────────┘
+                            │
+                Saved Artifacts (.joblib)
+                            │
+        ┌───────────────────▼───────────────────┐
+        │          Model Artifacts Layer        │
+        │---------------------------------------│
+        │ • XGBoost Model                       │
+        │ • Random Forest                       │
+        │ • Gradient Boosting                   │
+        │ • Logistic Regression                 │
+        └───────────────────┬───────────────────┘
+                            │
+                Loaded once at API startup
+                            │
+┌───────────────────────────▼───────────────────────────┐
+│                    FastAPI Backend                    │
+│-------------------------------------------------------│
+│ • API Routes (/predict, /models, /health)             │
+│ • Input Validation (Pydantic)                         │
+│ • Feature Preprocessing                               │
+│ • Model Selection & Inference                         │
+│ • Feature Importance                                  │
+│                                                       │
+│     In-memory inference, stateless API                │
+└───────────────────────────┬───────────────────────────┘
+                            │
+                     REST API Calls
+                            │
+┌───────────────────────────▼───────────────────────────┐
+│                 Streamlit Frontend                    │
+│-------------------------------------------------------│
+│ • User Inputs (sliders, dropdowns)                    │
+│ • Calls FastAPI                                       │
+│ • Displays Predictions & Insights                     │
+│                                                       │
+│   No ML logic, no models, UI only                     │
+└───────────────────────────────────────────────────────┘
+
+- Frontend handles user input and visualization  
+- Backend performs validation, preprocessing, and inference  
+- Models are loaded once at application startup for low latency  
+```
+---
+
+## 🔌 API Endpoints
+
+- `GET /health` – Service health check  
+- `GET /models` – List available models  
+- `POST /predict/{model_name}` – Generate churn predictions  
+- `GET /feature-importance/{model_name}` – Model interpretability  
+
+---
+
+## ⚡ Performance
+
+- **Inference latency**: < 100 ms  
+- **Memory usage**: < 512 MB  
+- **Deployment**: Local development setup  
+- **Scalability**: Horizontal scaling supported via API separation  
+
+---
+
+## 🖥️ Technologies Used
+
+### Backend
+- FastAPI  
+- Scikit-learn  
+- XGBoost  
+- Pandas, NumPy  
+
+### Frontend
+- Streamlit  
+- Seaborn  
+- Requests  
+
+---
+
+## 🔮 Future Improvements
+
+- Time-based cross-validation for more realistic evaluation  
+- Probability calibration (Platt scaling / isotonic regression)  
+- SHAP-based explainability  
+- Drift detection and monitoring  
+- Batch inference pipeline  
+- Dockerized deployment  
+
+---
+
+## 🎯 Key Takeaways
+
+- Demonstrates end-to-end ML Development  
+- Focuses on business-aligned evaluation  
+- Handled real-world constraints (no labels, imbalance, noisy data)  
+- Clean separation between ML, API, and UI layers  

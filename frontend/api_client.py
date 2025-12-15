@@ -1,31 +1,29 @@
-"""
-API client for backend communication
-"""
 import streamlit as st
 import requests
 from typing import Dict, List, Optional
 from config import config
 
-# Standalone cached functions (fix for Streamlit caching)
+# Standalone cached functions
 
 @st.cache_data(ttl=config.API_CACHE_TTL, show_spinner=False)
 def check_health() -> bool:
     """Check if API is running"""
     try:
         response = requests.get(
-            f"{config.API_BASE_URL}/health", 
+            f"{config.API_BASE_URL}/health",
             timeout=config.HEALTH_CHECK_TIMEOUT
         )
         return response.status_code == 200
     except:
         return False
 
+
 @st.cache_data(ttl=config.API_CACHE_TTL, show_spinner=False)
 def get_models() -> List[str]:
     """Get available models"""
     try:
         response = requests.get(
-            f"{config.API_BASE_URL}/models", 
+            f"{config.API_BASE_URL}/models",
             timeout=config.HEALTH_CHECK_TIMEOUT
         )
         if response.status_code == 200:
@@ -34,12 +32,13 @@ def get_models() -> List[str]:
     except:
         return []
 
+
 @st.cache_data(ttl=config.FEATURE_CACHE_TTL, show_spinner=False)
 def get_feature_ranges() -> Optional[Dict]:
     """Get feature ranges for sliders"""
     try:
         response = requests.get(
-            f"{config.API_BASE_URL}/feature-ranges", 
+            f"{config.API_BASE_URL}/feature-ranges",
             timeout=config.HEALTH_CHECK_TIMEOUT
         )
         if response.status_code == 200:
@@ -47,6 +46,7 @@ def get_feature_ranges() -> Optional[Dict]:
         return None
     except:
         return None
+
 
 def predict(model_name: str, features: Dict) -> Optional[Dict]:
     """Make prediction"""
@@ -68,12 +68,28 @@ def predict(model_name: str, features: Dict) -> Optional[Dict]:
         st.error("Connection error. Please check if the API is running.")
         return None
 
+
 @st.cache_data(ttl=config.FEATURE_CACHE_TTL, show_spinner=False)
 def get_feature_importance(model_name: str) -> Optional[Dict]:
     """Get feature importance"""
     try:
         response = requests.get(
             f"{config.API_BASE_URL}/feature-importance/{model_name}",
+            timeout=config.REQUEST_TIMEOUT
+        )
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except:
+        return None
+
+
+@st.cache_data(ttl=config.FEATURE_CACHE_TTL, show_spinner=False)
+def get_model_performance() -> Optional[Dict]:
+    """Get model performance metrics from API"""
+    try:
+        response = requests.get(
+            f"{config.API_BASE_URL}/model-performance",
             timeout=config.REQUEST_TIMEOUT
         )
         if response.status_code == 200:
