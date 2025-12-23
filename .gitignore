@@ -23,6 +23,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Test files
-backend/test_models.py
