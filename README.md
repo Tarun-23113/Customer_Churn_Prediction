@@ -213,12 +213,10 @@ All trained models were serialized using `joblib`.
 
 ## 🔮 Future Improvements
 
-- Time-based cross-validation for more realistic evaluation  
-- Probability calibration (Platt scaling / isotonic regression)  
-- SHAP-based explainability  
-- Drift detection and monitoring  
-- Batch inference pipeline  
-- Dockerized deployment  
+- Validate churn predictions using time-aware splits  
+- Improve interpretability to better explain predictions to stakeholders  
+- Add simple checks to detect changes in input data patterns  
+- Support batch predictions for offline business use cases  
 
 ---
 
