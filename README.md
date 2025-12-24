@@ -1,6 +1,6 @@
 # 🚀 Customer Churn Prediction – End-to-End ML System
 
-An end-to-end machine learning application that predicts customer churn for a Brazilian e-commerce platform using transactional data. The project covers the complete ML lifecycle: data preprocessing, feature engineering, model training and evaluation under class imbalance, and deployment using a FastAPI backend with a Streamlit frontend for real-time inference and insights.
+An end-to-end machine learning application that predicts customer churn for a e-commerce platform using transactional data. The project covers the complete ML lifecycle: data preprocessing, feature engineering, model training and evaluation under class imbalance, and deployment using a FastAPI backend with a Streamlit frontend for real-time inference and insights.
 
 ---
 
